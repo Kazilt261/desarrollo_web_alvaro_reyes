@@ -1,0 +1,36 @@
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif; /* Asegura una fuente limpia y moderna */
+    background-color: beige; /* Fondo claro para mejor contraste */
+    color: black; /* Texto en color negro para mejor legibilidad */
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    text-align: center; /* Centra el título de la sección */
+    margin-top: 20px;
+}
+
+/* Estilos de la tabla */
+table {
+    width: 90%; /* Ancho de la tabla */
+    margin: 20px auto; /* Centra la tabla horizontalmente y añade espacio arriba y abajo */
+    border-collapse: collapse; /* Elimina los espacios entre los bordes */
+}
+
+th, td {
+    border: 1px solid black; /* Líneas negras para cada celda y encabezado */
+    padding: 10px; /* Espaciado interno en las celdas */
+    text-align: left; /* Alinea el texto a la izquierda */
+}
+
+th {
+    background-color: #f2f2f2; /* Fondo gris claro para los encabezados */
+}
+
+img {
+    width: 100px; /* Ancho fijo para las imágenes */
+    height: 100px; /* Altura fija para las imágenes */
+    object-fit: cover; /* Asegura que las imágenes cubran completamente el área designada */
+}
