@@ -5,21 +5,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estadísticas de Actividades</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
         <h1>Estadísticas de Actividades</h1>
     </header>
+
     <nav>
         <ul>
             <li><a href="index.html">Inicio</a></li>
         </ul>
     </nav>
+
     <main>
-        <!-- Gráficos aquí -->
+        <div class="grafico">
+            <h2>Actividades por Día</h2>
+            <canvas id="grafico-lineas"></canvas>
+        </div>
+        <div class="grafico">
+            <h2>Actividades por Tipo</h2>
+            <canvas id="grafico-torta"></canvas>
+        </div>
+        <div class="grafico">
+            <h2>Actividades por Hora del Día</h2>
+            <canvas id="grafico-barras"></canvas>
+        </div>
+        <div class="volver">
+            <a href="index.html">Volver a la Portada</a>
+        </div>
     </main>
-    <footer>
-        <p>&copy; 2025 Álvaro Reyes Muñoz</p>
-    </footer>
+    <script>
+        const datosLineas = {
+            labels: ['2025-04-01', '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05', '2025-04-06'],
+            datasets: [{
+                label: 'Actividades',
+                data: [3, 5, 2, 4, 6, 3],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        };
+        const ctxLineas = document.getElementById('grafico-lineas').getContext('2d');
+        new Chart(ctxLineas, {
+            type: 'line',
+            data: datosLineas,
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Días'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Cantidad de Actividades'
+                        }
+                    }
+                }
+            }
+        });
+        const datosTorta = {
+            labels: ['Tecnología', 'Deporte', 'Aventura', 'Gastronomía', 'Música'],
+            datasets: [{
+                data: [5, 8, 4, 2, 6],
+                backgroundColor: ['#FF6347', '#36A2EB', '#FFCE56', '#4CAF50', '#FF5733'],
+                hoverOffset: 4
+            }]
+        };
+
+        const ctxTorta = document.getElementById('grafico-torta').getContext('2d');
+        new Chart(ctxTorta, {
+            type: 'pie',
+            data: datosTorta
+        });
+
+        const datosBarras = {
+            labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+            datasets: [{
+                label: 'Mañana',
+                data: [5, 6, 4, 8, 7],
+                backgroundColor: '#FF6347'
+            }, {
+                label: 'Mediodía',
+                data: [3, 4, 6, 5, 8],
+                backgroundColor: '#36A2EB'
+            }, {
+                label: 'Tarde',
+                data: [4, 5, 7, 6, 3],
+                backgroundColor: '#FFCE56'
+            }]
+        };
+        const ctxBarras = document.getElementById('grafico-barras').getContext('2d');
+        new Chart(ctxBarras, {
+            type: 'bar',
+            data: datosBarras,
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Meses'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Cantidad de Actividades'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

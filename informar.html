@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informar Nueva Actividad</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/informar.css">
     <script src="js/region_comuna.js"></script>
     <script src="js/validation.js"></script>
 </head>
@@ -18,12 +19,12 @@
         </ul>
     </nav>
     <main>
-        <form action="#" method="POST" onsubmit="return validateActivityForm();">
+        <form action="#" method="POST" onsubmit="validateActivityForm(event)">
             <h2>Información del Lugar</h2>
             <label for="region">Región:</label>
-            <select id="region" name="region" required onchange="updateComunas()">
+            <select id="region" name="region" onchange="updateComunas()">
                 <option value="">Selecciona una región</option>
-                <option value="Región Arica y Parinacota">Región de Arica y Parinacota</option>
+                <option value="Región Arica y Parinacota">Arica y Parinacota</option>
                 <option value="Región de Tarapacá">Tarapacá</option>
                 <option value="Región de Antofagasta">Antofagasta</option>
                 <option value="Región de Atacama">Atacama</option>
@@ -40,50 +41,56 @@
                 <option value="Región Aisén del General Carlos Ibáñez del Campo">Aysén</option>
                 <option value="Región de Magallanes y la Antártica Chilena">Magallanes y Antártica Chilena</option>  
             </select>
-
-            <label for="comuna">Comuna:</label>
-            <select id="comuna" name="comuna" required>
-                <option value="">Selecciona una comuna</option>
-                <option value="AAA">AAA</option>
-            </select>
+            
+            <div>
+                <label for="comuna">Comuna:</label>
+                <select id="comuna" name="comuna">
+                    <option value="">Selecciona una comuna</option>
+                </select>
+            </div>
 
             <label for="sector">Sector:</label>
             <input type="text" id="sector" name="sector" maxlength="100">
 
             <h2>Datos del Organizador</h2>
             <label for="nombre">Nombre del Organizador:</label>
-            <input type="text" id="nombre" name="nombre" maxlength="200" required>
+            <input type="text" id="nombre" name="nombre" maxlength="200">
 
             <label for="email">Correo Electrónico:</label>
-            <input type="email" id="email" name="email" maxlength="100" required>
+            <input type="email" id="email" name="email" maxlength="100">
 
             <label for="celular">Número de Celular:</label>
             <input type="tel" id="celular" name="celular" pattern="^\+569\d{8}$" placeholder="+56912345678">
 
             <label for="contactar_por">Contactar por:</label>
-            <select id="contactar_por" name="contactar_por">
+            <select id="contactar_por" name="contactar_por" onchange="showContactInput()">
+                <option value="">Selecciona una opción</option> 
                 <option value="whatsapp">WhatsApp</option>
                 <option value="telegram">Telegram</option>
+                <option value="X">X</option>
                 <option value="instagram">Instagram</option>
                 <option value="tiktok">TikTok</option>
                 <option value="otra">Otra</option>
             </select>
 
-            <label for="id_contacto">ID o URL de Contacto:</label>
-            <input type="text" id="id_contacto" name="id_contacto" minlength="4" maxlength="50" placeholder="ID o URL de contacto">
+            <div id="contacto_input" style="display: none;">
+                <label for="id_contacto">ID o URL de Contacto:</label>
+                <input type="text" id="id_contacto" name="id_contacto" minlength="4" maxlength="50" placeholder="ID o URL de contacto">
+            </div>
 
             <h2>Información de la Actividad</h2>
             <label for="inicio">Fecha y Hora de Inicio:</label>
-            <input type="datetime-local" id="inicio" name="inicio" required>
+            <input type="datetime-local" id="inicio" name="inicio">
 
             <label for="termino">Fecha y Hora de Término:</label>
-            <input type="datetime-local" id="termino" name="termino" required>
+            <input type="datetime-local" id="termino" name="termino">
 
             <label for="descripcion">Descripción de la Actividad:</label>
             <textarea id="descripcion" name="descripcion" rows="10" cols="50"></textarea>
 
             <label for="tema">Tema:</label>
-            <select id="tema" name="tema" required>
+            <select id="tema" name="tema" onchange="checkOtherTopic()">
+                <option value="">Selecciona un tema</option>
                 <option value="musica">Música</option>
                 <option value="deporte">Deporte</option>
                 <option value="ciencias">Ciencias</option>
@@ -96,15 +103,23 @@
                 <option value="otro">Otro</option>
             </select>
 
+            <div id="otro_tema_input" style="display: none;">
+                <label for="otro_tema">Especifica el Tema:</label>
+                <input type="text" id="otro_tema" name="otro_tema" minlength="3" maxlength="15" placeholder="Escribe el tema">
+            </div>
+
             <label for="foto">Fotos:</label>
-            <input type="file" id="foto" name="foto" accept="image/*" multiple required>
+            <input type="file" id="foto" name="foto" accept="image/*" multiple>
             <button type="button" onclick="addAnotherPhoto()">Agregar otra foto</button>
 
             <button type="submit">Agregar esta Actividad</button>
         </form>
     </main>
-    <footer>
-        <p>&copy; 2025 Tu Nombre</p>
-    </footer>
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h3>¿Estas seguro de publicar esto?</h3>
+            <menu><button onclick="closeModal()">Cancelar</button> <button onclick="submitForm()">Aceptar</button></menu>
+        </div>
+    </div>
 </body>
 </html>
