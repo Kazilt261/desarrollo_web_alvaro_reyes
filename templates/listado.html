@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listado de Actividades</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <header>
@@ -13,7 +13,7 @@
 
     <nav>
         <ul>
-            <li><a href="index.html">Inicio</a></li>
+            <li><a href="{{ url_for('index') }}">Inicio</a></li>
         </ul>
     </nav>
 
@@ -36,7 +36,7 @@
             </tbody>
         </table>
     </main>
-    <script src="js/data.js"></script>
-    <script src="js/activities.js"></script>
+    <script src="{{ url_for('static', filename='js/data.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/activities.js') }}"></script>
 </body>
 </html>

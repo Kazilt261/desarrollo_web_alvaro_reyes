@@ -44,7 +44,7 @@ function validateActivityForm(event) {
         return false;
     }
 
-    document.getElementById("modal").classList.toggle("open");
+    document.getElementById("modal").classList.add("open");
 
     return true;
 }
@@ -88,18 +88,20 @@ function updateComunas() {
 }
 
 function closeModal() {
-    document.getElementById("modal").classList.toggle("open");
+    document.getElementById("modal").classList.remove("open");
 }
 
 function goIndex() {
-    window.location.href = "index.html";
+    window.location.href = '/';
 }
 
 function submitForm() {
+    closeModal();
     const modal = document.getElementById("modal");
     const modalContent = modal.querySelector(".modal-content");
     modalContent.innerHTML = "<p>Formulario enviado con éxito.</p>";
     modalContent.innerHTML += "<button onclick='goIndex()'>Cerrar</button>";
+    document.getElementById("activityForm").submit();
 }
 
 function checkOtherTopic() {

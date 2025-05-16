@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estadísticas de Actividades</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -14,7 +14,7 @@
 
     <nav>
         <ul>
-            <li><a href="index.html">Inicio</a></li>
+            <li><a href="{{ url_for('index') }}">Inicio</a></li>
         </ul>
     </nav>
 
@@ -32,7 +32,7 @@
             <canvas id="grafico-barras"></canvas>
         </div>
         <div class="volver">
-            <a href="index.html">Volver a la Portada</a>
+            <a href="{{ url_for('index') }}">Volver a la Portada</a>
         </div>
     </main>
     <script>

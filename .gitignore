@@ -1,0 +1,26 @@
+# Entorno virtual
+venv/
+.env
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+
+# Configuración local
+instance/
+config.py
+
+# Bases de datos locales
+*.db
+
+# Cargas de usuarios (si no quieres incluir fotos)
+static/uploads/
+
+# Archivos de sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
