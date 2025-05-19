@@ -1,31 +1,142 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-from models import db, Actividad, Region, Comuna, Foto
+import re
+import os
+from datetime import datetime
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from models import db, Actividad, Foto, Region, Comuna, Tema, ContactarPor
+from werkzeug.utils import secure_filename
+from math import ceil
 import config
 
 app = Flask(__name__)
+
+EMAIL_REGEX = re.compile(r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+TEL_REGEX   = re.compile(r'^\+569\d{8}$')
+
 app.config.from_object(config)
+
+
 db.init_app(app)
 
-# (si usas create_all al inicio, déjalo aquí)
-
+@app.route('/api/localidades')
+def api_localidades():
+    regiones = Region.query.order_by(Region.id).all()
+    result = []
+    for r in regiones:
+        comunas = Comuna.query.filter_by(region_id=r.id) \
+                              .order_by(Comuna.id).all()
+        result.append({
+            'numero': r.id,
+            'nombre': r.nombre,
+            'comunas': [
+                {'id': c.id, 'nombre': c.nombre}
+                for c in comunas
+            ]
+        })
+    return jsonify({'regiones': result})
 
 @app.route('/ping')
 def ping():
-    # Usamos el método count() del query de SQLAlchemy
     count = Actividad.query.count()
     return f"Actividades en BD: {count}"
 
 
 @app.route('/')
 def index():
-    ultimas = Actividad.query \
-                .order_by(Actividad.dia_hora_inicio.desc()) \
-                .limit(5).all()
+    ultimas = (
+        Actividad.query
+        .order_by(Actividad.id.desc()) 
+        .limit(5)
+        .all()
+    )
     return render_template('index.html', actividades=ultimas)
+
+@app.route('/api/actividades')
+def api_actividades():
+    page     = request.args.get('page', 1, type=int)
+    per_page = 5
+
+    total       = Actividad.query.count()
+    total_pages = ceil(total / per_page)
+
+    actividades = (
+        Actividad.query
+        .order_by(Actividad.id.desc())    
+        .limit(per_page)
+        .offset((page - 1) * per_page)
+        .all()
+    )
+
+    result = []
+    for a in actividades:
+        tema_str = ', '.join([t.tema for t in a.temas]) if a.temas else ''
+        result.append({
+            'id': a.id,
+            'inicio': a.dia_hora_inicio.isoformat(),
+            'termino': a.dia_hora_termino.isoformat() if a.dia_hora_termino else None,
+            'comuna': a.comuna.nombre,
+            'sector': a.sector,
+            'tema': tema_str,
+            'organizador': a.nombre,
+            'total_fotos': len(a.fotos),
+        })
+
+    return jsonify({
+        'actividades': result,
+        'page':         page,
+        'total_pages':  total_pages
+    })
+
+@app.route('/api/actividades/<int:act_id>')
+def api_actividad(act_id):
+    a = Actividad.query.get_or_404(act_id)
+    fotos = [
+        {"ruta_archivo": f.ruta_archivo, "nombre_archivo": f.nombre_archivo}
+        for f in a.fotos
+    ]
+    temas = [t.tema for t in a.temas]
+    return jsonify({
+        "id":          a.id,
+        "inicio":      a.dia_hora_inicio.isoformat(),
+        "termino":     a.dia_hora_termino.isoformat() if a.dia_hora_termino else None,
+        "comuna":      a.comuna.nombre,
+        "sector":      a.sector,
+        "tema":        ", ".join(temas),
+        "organizador": a.nombre,
+        "email":       a.email,
+        "celular":     a.celular,
+        "contactar_por":contactos,
+        "descripcion": a.descripcion,
+        "fotos":       fotos
+    })
 
 @app.route('/actividades')
 def listado():
-    return render_template('listado.html')
+    actividades = (
+        Actividad.query
+        .order_by(Actividad.dia_hora_inicio.desc())
+        .all()
+    )
+    return render_template('listado.html', actividades=actividades)
+
+@app.route('/actividades/<int:act_id>')
+def detalle(act_id):
+    actividad = Actividad.query.get_or_404(act_id)
+
+    contactos = [
+        # Si el medio es "otra", mostramos "otra (identificador)"
+        f"{c.nombre} ({c.identificador})" if c.nombre == 'otra'
+        # En caso contrario, solo el nombre del medio
+        else c.nombre
+        for c in actividad.contactos
+    ]
+
+    return render_template(
+        'listado_detalle.html',
+        actividad     = actividad,
+        contactos     = contactos
+    )
+
+
 
 @app.route('/estadisticas')
 def estadisticas():
@@ -33,56 +144,124 @@ def estadisticas():
 
 @app.route('/informar', methods=['GET', 'POST'])
 def informar():
+
+    datos    = {}       
+    medios   = []      
+    tema_sel = ''       
+
     if request.method == 'POST':
-        region_id        = request.form.get('region_id', type=int)
-        comuna_id        = request.form.get('comuna_id',  type=int)
-        sector           = request.form.get('sector')
-        nombre           = request.form.get('nombre')
-        email            = request.form.get('email')
-        celular          = request.form.get('celular')
-        inicio_str       = request.form.get('dia_hora_inicio')
-        termino_str      = request.form.get('dia_hora_termino')
-        descripcion      = request.form.get('descripcion')
-        fotos_files      = request.files.getlist('fotos')
+        errors = []
+    
+        datos = request.form.to_dict(flat=True)
+        medios   = request.form.getlist('contactar_por')
+        tema_sel = datos.get('tema','')
 
-        from datetime import datetime
-        dia_hora_inicio = datetime.fromisoformat(inicio_str)
-        dia_hora_termino = datetime.fromisoformat(termino_str) if termino_str else None
+        comuna_id = request.form.get('comuna_id', type=int)
+        if not comuna_id:
+            errors.append('Debes seleccionar una comuna.')
+        if not datos.get('nombre','').strip():
+            errors.append('El nombre del organizador es obligatorio.')
+        if not datos.get('email','').strip():
+            errors.append('El correo electrónico es obligatorio.')
+        if not datos.get('dia_hora_inicio','').strip():
+            errors.append('La fecha y hora de inicio es obligatoria.')
+        if not datos.get('dia_hora_termino','').strip():
+            errors.append('La fecha y hora de término es obligatoria.')
+        if not tema_sel:
+            errors.append('Debes seleccionar un tema.')
+        if tema_sel == 'otro' and not datos.get('otro_tema','').strip():
+            errors.append('Debes especificar el tema cuando eliges "Otro".')
+            
+        email = datos.get('email','').strip()
+        if email and not EMAIL_REGEX.match(email):
+            errors.append('El correo no tiene formato válido (usuario@dominio.com).')
 
+        inicio_str  = datos.get('dia_hora_inicio','').strip()
+        termino_str = datos.get('dia_hora_termino','').strip()
+        try:
+            inicio  = datetime.fromisoformat(inicio_str)
+            termino = datetime.fromisoformat(termino_str)
+            if termino <= inicio:
+                errors.append('La fecha de término debe ser posterior a la de inicio.')
+        except ValueError:
+            errors.append('Las fechas deben tener formato válido (YYYY-MM-DDThh:mm).')
+
+        celular = datos.get('celular','').strip()
+        if celular and not TEL_REGEX.match(celular):
+            errors.append('El número de celular debe tener formato +56912345678.')
+            
+        fotos_files = request.files.getlist('fotos[]')
+        total_fotos = sum(1 for f in fotos_files if f and f.filename)
+        if total_fotos < 1:
+            errors.append('Debes subir al menos una foto.')
+        if total_fotos > 5:
+            errors.append('No puedes subir más de 5 fotos.')
+            
+        if errors:
+            return render_template(
+                'informar.html',
+                errores=errors,
+                datos=datos,
+                medios=medios,
+                tema_sel=tema_sel
+            )
+            
+        sector      = datos.get('sector')
+        nombre      = datos['nombre'].strip()
+        email       = email
+        celular     = celular
+        descripcion = datos.get('descripcion')
         act = Actividad(
             comuna_id=comuna_id,
             sector=sector,
             nombre=nombre,
             email=email,
             celular=celular,
-            dia_hora_inicio=dia_hora_inicio,
-            dia_hora_termino=dia_hora_termino,
+            dia_hora_inicio=inicio,
+            dia_hora_termino=termino,
             descripcion=descripcion
         )
         db.session.add(act)
-        db.session.flush() 
-
-        upload_folder = 'static/uploads'
-        import os
+        db.session.flush()
+        
+        valor_tema = datos.get('otro_tema') if tema_sel == 'otro' else tema_sel
+        if valor_tema:
+            db.session.add(Tema(tema=valor_tema, actividad_id=act.id))
+            
+        identificador = datos.get('id_contacto','').strip()
+        for m in medios:
+            iden = identificador if m == 'otra' else ''
+            db.session.add(ContactarPor(
+                actividad_id=act.id,
+                nombre=m,
+                identificador=iden
+            ))
+            
+        upload_folder = app.config['UPLOAD_FOLDER']
         os.makedirs(upload_folder, exist_ok=True)
         for f in fotos_files:
-            if f.filename:
-                ruta = os.path.join(upload_folder, f.filename)
-                f.save(ruta)
-                foto = Foto(
-                    ruta_archivo=ruta,
-                    nombre_archivo=f.filename,
+            if f and f.filename:
+                filename = secure_filename(f.filename)
+                f.save(os.path.join(upload_folder, filename))
+                db.session.add(Foto(
+                    ruta_archivo=f'uploads/{filename}',
+                    nombre_archivo=filename,
                     actividad_id=act.id
-                )
-                db.session.add(foto)
+                ))
 
         db.session.commit()
         flash('Actividad registrada con éxito.', 'success')
         return redirect(url_for('index'))
+        
+    return render_template(
+        'informar.html',
+        errores=None,
+        datos={},
+        medios=[],
+        tema_sel=''
+    )
 
-    regiones = Region.query.order_by(Region.nombre).all()
-    comunas  = Comuna.query.order_by(Comuna.nombre).all()
-    return render_template('informar.html', regions=regiones, comunas=comunas)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

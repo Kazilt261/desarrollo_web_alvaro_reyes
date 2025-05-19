@@ -1,22 +1,84 @@
+<!-- templates/listado_detalle.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalles de la Actividad</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Detalle de la Actividad</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/listado_detalle.css') }}">
 </head>
 <body>
-    <header>
-        <h1>Detalles de la Actividad</h1>
-    </header>
+  <header>
+    <h1>Detalle de la Actividad</h1>
+  </header>
 
-    <main>
-        <div id="info-actividad"></div>
-        <div id="fotos-actividad"></div>
-        <a href="{{ url_for('listado') }}">Cerrar</a>
-    </main>
-    <script src="{{ url_for('static', filename='js/data.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/activities_detailed.js') }}"></script>
+  <nav>
+    <ul>
+      <li><a href="{{ url_for('index') }}" class="btn-back">Volver a Portada</a></li>
+      <li><a href="{{ url_for('listado') }}" class="btn-back">Volver al Listado</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section id="info-actividad">
+      <p><strong>Región / Comuna:</strong>
+        {{ actividad.comuna.region.nombre }} / {{ actividad.comuna.nombre }}
+      </p>
+      <p><strong>Sector:</strong> {{ actividad.sector or '—' }}</p>
+      <p><strong>Organizador:</strong> {{ actividad.nombre }}</p>
+      <p><strong>Email:</strong> {{ actividad.email }}</p>
+      <p><strong>Celular:</strong> {{ actividad.celular or '—' }}</p>
+
+      <!-- Nuevo bloque: Redes Sociales y sus identificadores -->
+      <p><strong>Redes Sociales:</strong>
+        {% if contactos %}
+          {{ contactos | join(', ') }}
+        {% else %}
+          —
+        {% endif %}
+      </p>
+
+      <p><strong>Inicio:</strong>
+        {{ actividad.dia_hora_inicio.strftime("%d/%m/%Y %H:%M") }}
+      </p>
+      <p><strong>Término:</strong>
+        {% if actividad.dia_hora_termino %}
+          {{ actividad.dia_hora_termino.strftime("%d/%m/%Y %H:%M") }}
+        {% else %}—{% endif %}
+      </p>
+      <p><strong>Tema(s):</strong>
+        {{ actividad.temas|map(attribute='tema')|join(', ') }}
+      </p>
+      <p><strong>Descripción:</strong></p>
+      <p>{{ actividad.descripcion or '—' }}</p>
+    </section>
+
+    <section id="fotos-actividad">
+      <h2>Fotos</h2>
+      <div>
+        {% for foto in actividad.fotos %}
+          <img
+            src="{{ url_for('static', filename=foto.ruta_archivo) }}"
+            class="detalle-foto"
+            onclick="openLightbox(this.src)"
+            alt="{{ foto.nombre_archivo }}"
+          >
+        {% endfor %}
+      </div>
+    </section>
+
+    <div id="lightbox" class="lightbox" onclick="this.classList.remove('open')">
+      <img id="lb-img" alt="Ampliación de foto">
+    </div>
+  </main>
+
+  <script>
+    function openLightbox(src) {
+      const lb = document.getElementById('lightbox');
+      document.getElementById('lb-img').src = src;
+      lb.classList.add('open');
+    }
+  </script>
 </body>
 </html>

@@ -1,50 +1,63 @@
+let currentPage = 1;
+let totalPages  = 1;
 
-const actividades = data;
+async function loadActivities(page = 1) {
+  const resp = await fetch(`/api/actividades?page=${page}`);
+  const data = await resp.json();
 
-function mostrarActividad(id) {
-    const actividad = actividades[id - 1];
+  // 1) Obtén la lista y ordénala por id descendente
+  const lista = data.actividades.sort((a, b) => b.id - a.id);
 
-    const detallesHTML = `
-        <h2>Detalles de la Actividad</h2>
-        <p><strong>Inicio:</strong> ${actividad.inicio}</p>
-        <p><strong>Término:</strong> ${actividad.termino}</p>
-        <p><strong>Comuna:</strong> ${actividad.comuna}</p>
-        <p><strong>Sector:</strong> ${actividad.sector}</p>
-        <p><strong>Tema:</strong> ${actividad.tema}</p>
-        <p><strong>Nombre Organizador:</strong> ${actividad.organizador}</p>
-        <p><strong>Total Fotos:</strong> ${actividad.fotos.length}</p>
-        <div id="fotos-actividad">
-            ${actividad.fotos.map(foto => `<img src="${foto}" alt="Foto" class="mini-foto">`).join('')}
-        </div>
-        <button onclick="volverListado()">Volver al Listado</button>
+  // 2) Actualiza paginación
+  currentPage  = data.page;
+  totalPages   = data.total_pages;
+
+  // 3) Render y controles
+  renderTable(lista);
+  updatePaginationControls();
+}
+
+function renderTable(lista) {
+  const tbody = document.getElementById('list');
+  tbody.innerHTML = '';  // limpiamos
+
+  lista.forEach(act => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${new Date(act.inicio).toLocaleString('es-CL')}</td>
+      <td>${act.termino ? new Date(act.termino).toLocaleString('es-CL') : '—'}</td>
+      <td>${act.comuna}</td>
+      <td>${act.sector || '—'}</td>
+      <td>${act.tema || '—'}</td>
+      <td>${act.organizador}</td>
+      <td>${act.total_fotos}</td>
     `;
-
-    document.getElementById('main-content').innerHTML = detallesHTML;
-}
-
-function redirigirActividad(id) {
-    location.href=`listado_detalle.html?id=${id}`;
-}
-
-function loadActivityDetails() {
-    const list = document.getElementById("list");
-    let html = '';
-    actividades.forEach((actividad, index) => {
-        html += `
-            <tr onclick="redirigirActividad(${index + 1})">
-                    <td class="dateBegin">${actividad.inicio}</td>
-                    <td class="dateEnd">${actividad.termino}</td>
-                    <td class="comuna">${actividad.comuna}</td>
-                    <td class="sector">${actividad.sector}</td>
-                    <td class="topic">${actividad.tema}</td>
-                    <td class="organizatorName">${actividad.organizador}</td>
-                    <td class="totalPhotos">${actividad.fotos.length}</td>
-            </tr>
-        `;
+    tr.style.cursor = 'pointer';
+    tr.addEventListener('click', () => {
+      window.location.href = `/actividades/${act.id}`;
     });
-    list.innerHTML = html;
+    tbody.appendChild(tr);
+  });
 }
 
+function updatePaginationControls() {
+  document.getElementById('prevBtn').disabled = currentPage <= 1;
+  document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+  document.getElementById('pageInfo').textContent = 
+    `Página ${currentPage} de ${totalPages}`;
+}
 
+document.addEventListener('DOMContentLoaded', () => {
+  // Carga inicial
+  loadActivities();
 
-loadActivityDetails(); 
+  // Listeners
+  document.getElementById('prevBtn')
+          .addEventListener('click', () => {
+    if (currentPage > 1) loadActivities(currentPage - 1);
+  });
+  document.getElementById('nextBtn')
+          .addEventListener('click', () => {
+    if (currentPage < totalPages) loadActivities(currentPage + 1);
+  });
+});

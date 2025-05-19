@@ -1,0 +1,51 @@
+/* Lightbox por defecto está oculto */
+.lightbox {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+}
+
+/* Cuando tenga la clase .open, se muestra en flex centrándolo */
+.lightbox.open {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Imagen ampliada */
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* Miniaturas clicables */
+.detalle-foto {
+  width: 100px;
+  margin: 5px;
+  cursor: pointer;
+  transition: transform .2s;
+}
+.detalle-foto:hover {
+  transform: scale(1.1);
+}
+
+.btn-back {
+  display: inline-block;
+  margin: 5px;
+  padding: 5px 10px;
+  background: #eee;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #333;
+}
+
+.lightbox.open img {
+  max-width: none;
+  width: 30vw;
+  height: auto;
+}

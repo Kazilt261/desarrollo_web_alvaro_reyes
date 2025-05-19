@@ -1,42 +1,46 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listado de Actividades</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listado de Actividades</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <header>
-        <h1>Listado de Actividades</h1>
-    </header>
+  <header>
+    <h1>Listado de Actividades</h1>
+  </header>
 
-    <nav>
-        <ul>
-            <li><a href="{{ url_for('index') }}">Inicio</a></li>
-        </ul>
-    </nav>
+  <nav>
+    <ul>
+      <li><a class="button" href="{{ url_for('index') }}">Inicio</a></li>
+    </ul>
+  </nav>
 
-    <main id="main-content">
-        <table>
-            <thead>
-                <tr>
-                    <th>Inicio</th>
-                    <th>Término</th>
-                    <th>Comuna</th>
-                    <th>Sector</th>
-                    <th>Tema</th>
-                    <th>Nombre Organizador</th>
-                    <th>Total Fotos</th>
-                </tr>
-            </thead>
-            <tbody id="list">
-                
+  <main id="main-content">
+    <table>
+      <thead>
+        <tr>
+            <th>Inicio</th>
+            <th>Término</th>
+            <th>Comuna</th>
+            <th>Sector</th>
+            <th>Tema</th>             
+            <th>Organizador</th>
+            <th>Total Fotos</th>
+        </tr>
+      </thead>
+      <tbody id="list">
+        <!-- Aquí lo llenará activities.js -->
+      </tbody>
+    </table>
+    <div class="pagination">
+        <button id="prevBtn">Anterior</button>
+        <span id="pageInfo"></span>
+        <button id="nextBtn">Siguiente</button>
+    </div>
+  </main>
 
-            </tbody>
-        </table>
-    </main>
-    <script src="{{ url_for('static', filename='js/data.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/activities.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/activities.js') }}"></script>
 </body>
 </html>

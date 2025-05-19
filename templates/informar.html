@@ -13,7 +13,7 @@
   </header>
   <nav>
     <ul>
-      <li><a href="{{ url_for('index') }}">Inicio</a></li>
+      <li><a class="button" href="{{ url_for('index') }}">Inicio</a></li>
     </ul>
   </nav>
   <main>
@@ -21,16 +21,16 @@
           action="{{ url_for('informar') }}"
           method="post"
           enctype="multipart/form-data"
-          onsubmit="validateActivityForm(event)">
+          novalidate>
 
       <h2>Información del Lugar</h2>
-      <label for="region">Región:</label>
+      <label for="region">Región<span class="req">*</span>:</label>
       <select id="region" name="region_id">
         <option value="">Selecciona una región</option>
       </select>
 
       <div>
-        <label for="comuna">Comuna:</label>
+        <label for="comuna">Comuna<span class="req">*</span>:</label>
         <select id="comuna" name="comuna_id">
           <option value="">Selecciona una comuna</option>
         </select>
@@ -40,10 +40,10 @@
       <input type="text" id="sector" name="sector" maxlength="100">
 
       <h2>Datos del Organizador</h2>
-      <label for="nombre">Nombre del Organizador:</label>
+      <label for="nombre">Nombre del Organizador<span class="req">*</span>:</label>
       <input type="text" id="nombre" name="nombre" maxlength="200">
 
-      <label for="email">Correo Electrónico:</label>
+      <label for="email">Correo Electrónico<span class="req">*</span>:</label>
       <input type="email" id="email" name="email" maxlength="100">
 
       <label for="celular">Número de Celular:</label>
@@ -51,8 +51,7 @@
              pattern="^\+569\d{8}$" placeholder="+56912345678">
 
       <label for="contactar_por">Contactar por:</label>
-      <select id="contactar_por" name="contactar_por" onchange="showContactInput()">
-        <option value="">Selecciona una opción</option>
+      <select id="contactar_por" name="contactar_por" multiple size="6">
         <option value="whatsapp">WhatsApp</option>
         <option value="telegram">Telegram</option>
         <option value="X">X</option>
@@ -69,16 +68,16 @@
       </div>
 
       <h2>Información de la Actividad</h2>
-      <label for="inicio">Fecha y Hora de Inicio:</label>
+      <label for="inicio">Fecha y Hora de Inicio<span class="req">*</span>:</label>
       <input type="datetime-local" id="inicio" name="dia_hora_inicio">
 
-      <label for="termino">Fecha y Hora de Término:</label>
+      <label for="termino">Fecha y Hora de Término<span class="req">*</span>:</label>
       <input type="datetime-local" id="termino" name="dia_hora_termino">
 
       <label for="descripcion">Descripción de la Actividad:</label>
       <textarea id="descripcion" name="descripcion" rows="5" cols="50"></textarea>
 
-      <label for="tema">Tema:</label>
+      <label for="tema">Tema<span class="req">*</span>:</label>
       <select id="tema" name="tema" onchange="checkOtherTopic()">
         <option value="">Selecciona un tema</option>
         <option value="música">Música</option>
@@ -92,6 +91,7 @@
         <option value="comida">Comida</option>
         <option value="otro">Otro</option>
       </select>
+
       <div id="otro_tema_input" style="display: none;">
         <label for="otro_tema">Especifica el Tema:</label>
         <input type="text" id="otro_tema" name="otro_tema"
@@ -99,32 +99,38 @@
                placeholder="Escribe el tema">
       </div>
 
-      <label for="foto">Fotos:</label>
-      <input type="file" id="foto" name="fotos" accept="image/*" multiple>
+      <label for="fotos">Fotos:</label>
+      <div id="photoInputsContainer">
+        <input type="file" name="fotos[]" accept="image/*" multiple class="foto">
+      </div>
       <button type="button" onclick="addAnotherPhoto()">Agregar otra foto</button>
 
       <button type="submit">Agregar esta Actividad</button>
+      <p><small><span class="req">*</span> Campo obligatorio</small></p>
     </form>
+
     <div class="modal" id="modal">
-        <div class="modal-content">
-            <h3>¿Estas seguro de publicar esto?</h3>
-            <menu><button onclick="closeModal()">Cancelar</button> <button onclick="submitForm()">Aceptar</button></menu>
-        </div>
+      <div class="modal-content">
+        <h3>¿Estás seguro de publicar esto?</h3>
+        <menu>
+          <button onclick="closeModal()">Cancelar</button>
+          <button onclick="submitForm()">Aceptar</button>
+        </menu>
+      </div>
     </div>
   </main>
 
   <!-- Scripts -->
-  <script src="{{ url_for('static', filename='js/region_comuna.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/validation.js') }}"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const comunasData = region_comuna.regiones.flatMap(r =>
-        r.comunas.map(c => ({ id: c.id, nombre: c.nombre, region_id: r.numero }))
-      );
+    // Carga regio­nes y comunas
+    async function cargarRegionesYComunas() {
+      const resp = await fetch('{{ url_for("api_localidades") }}');
+      const { regiones } = await resp.json();
       const selReg = document.getElementById('region');
       const selCom = document.getElementById('comuna');
 
-      // Poblamos regiones
-      region_comuna.regiones.forEach(r => {
+      regiones.forEach(r => {
         const opt = document.createElement('option');
         opt.value = r.numero;
         opt.textContent = r.nombre;
@@ -133,19 +139,41 @@
 
       selReg.addEventListener('change', () => {
         selCom.innerHTML = '<option value="">Selecciona una comuna</option>';
-        const regionId = parseInt(selReg.value);
+        const regionId = parseInt(selReg.value, 10);
         if (!regionId) return;
-        comunasData.filter(c => c.region_id === regionId)
-          .forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c.id;
-            opt.textContent = c.nombre;
-            selCom.appendChild(opt);
-          });
+        const comunas = regiones.find(r => r.numero === regionId).comunas;
+        comunas.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.nombre;
+          selCom.appendChild(opt);
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      cargarRegionesYComunas();
+
+      // Mostrar input de contacto adicional
+      const selMedio = document.getElementById('contactar_por');
+      const divContacto = document.getElementById('contacto_input');
+      selMedio.addEventListener('change', () => {
+        const vals = Array.from(selMedio.selectedOptions).map(o => o.value);
+        divContacto.style.display = vals.includes('otra') ? 'block' : 'none';
       });
     });
+
+    // Agrega un nuevo campo de foto
+    function addAnotherPhoto() {
+      const container = document.getElementById('photoInputsContainer');
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.name = 'fotos[]';
+      input.accept = 'image/*';
+      input.classList.add('foto');        // ← importante
+      container.appendChild(input);
+    }
+    window.addAnotherPhoto = addAnotherPhoto;
   </script>
-  <script src="{{ url_for('static', filename='js/validation.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/region_comuna.js') }}"></script>
 </body>
 </html>

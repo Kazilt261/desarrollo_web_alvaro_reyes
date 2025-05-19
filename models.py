@@ -76,3 +76,16 @@ class Foto(db.Model):
     actividad_id   = db.Column(db.Integer, db.ForeignKey('actividad.id'), nullable=False)
 
     actividad = db.relationship('Actividad', back_populates='fotos')
+
+class Tema(db.Model):
+    __tablename__ = 'actividad_tema'
+    __table_args__ = {'extend_existing': True}  # <— aquí
+
+    id           = db.Column(db.Integer,
+                             primary_key=True,
+                             autoincrement=True)
+    actividad_id = db.Column(db.Integer,
+                             db.ForeignKey('actividad.id'),
+                             nullable=False)
+    tema         = db.Column(db.String(50),
+                             nullable=False)
