@@ -1,4 +1,3 @@
-<!-- templates/listado_detalle.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -29,8 +28,7 @@
       <p><strong>Organizador:</strong> {{ actividad.nombre }}</p>
       <p><strong>Email:</strong> {{ actividad.email }}</p>
       <p><strong>Celular:</strong> {{ actividad.celular or '—' }}</p>
-
-      <!-- Nuevo bloque: Redes Sociales y sus identificadores -->
+      
       <p><strong>Redes Sociales:</strong>
         {% if contactos %}
           {{ contactos | join(', ') }}

@@ -1,13 +1,10 @@
 window.addEventListener('DOMContentLoaded', async () => {
-  // 1. Extraer el ID de la URL
   const parts = window.location.pathname.split('/');
   const actId = parts[parts.length - 1];
-
-  // 2. Pedir los datos de la actividad
+  
   const resp = await fetch(`/api/actividades/${actId}`);
   const a    = await resp.json();
-
-  // 3. Rellenar la sección de info
+  
   const info = document.getElementById('info-actividad');
   info.innerHTML = `
     <p><strong>ID:</strong> ${a.id}</p>
@@ -23,8 +20,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     <p><strong>Celular:</strong> ${a.celular || '—'}</p>
     <p><strong>Descripción:</strong> ${a.descripcion || '—'}</p>
   `;
-
-  // 4. Rellenar la sección de fotos iterando todas
+  
   const fotosSection = document.getElementById('fotos-actividad');
   if (a.fotos && a.fotos.length > 0) {
     a.fotos.forEach(foto => {

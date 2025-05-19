@@ -1,4 +1,3 @@
-/* Lightbox por defecto está oculto */
 .lightbox {
   display: none;
   position: fixed;
@@ -8,21 +7,18 @@
   z-index: 1000;
 }
 
-/* Cuando tenga la clase .open, se muestra en flex centrándolo */
 .lightbox.open {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Imagen ampliada */
 .lightbox img {
   max-width: 90%;
   max-height: 90%;
   box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 
-/* Miniaturas clicables */
 .detalle-foto {
   width: 100px;
   margin: 5px;

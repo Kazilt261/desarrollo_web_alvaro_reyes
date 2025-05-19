@@ -119,11 +119,9 @@
       </div>
     </div>
   </main>
-
-  <!-- Scripts -->
   <script src="{{ url_for('static', filename='js/validation.js') }}"></script>
   <script>
-    // Carga regio­nes y comunas
+    
     async function cargarRegionesYComunas() {
       const resp = await fetch('{{ url_for("api_localidades") }}');
       const { regiones } = await resp.json();
@@ -153,8 +151,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       cargarRegionesYComunas();
-
-      // Mostrar input de contacto adicional
+      
       const selMedio = document.getElementById('contactar_por');
       const divContacto = document.getElementById('contacto_input');
       selMedio.addEventListener('change', () => {
@@ -162,15 +159,14 @@
         divContacto.style.display = vals.includes('otra') ? 'block' : 'none';
       });
     });
-
-    // Agrega un nuevo campo de foto
+    
     function addAnotherPhoto() {
       const container = document.getElementById('photoInputsContainer');
       const input = document.createElement('input');
       input.type = 'file';
       input.name = 'fotos[]';
       input.accept = 'image/*';
-      input.classList.add('foto');        // ← importante
+      input.classList.add('foto');     
       container.appendChild(input);
     }
     window.addAnotherPhoto = addAnotherPhoto;

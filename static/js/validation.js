@@ -5,9 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function validateActivityForm(event) {
-  event.preventDefault(); // cortamos el envío nativo
-
-  // 1) Validaciones básicas
+  event.preventDefault(); 
+  
   const nombre     = document.getElementById("nombre").value.trim();
   const email      = document.getElementById("email").value.trim();
   const inicio     = document.getElementById("inicio").value;
@@ -17,8 +16,7 @@ function validateActivityForm(event) {
   const otroTema   = document.getElementById("otro_tema").value.trim();
   const region     = document.getElementById("region").value;
   const comuna     = document.getElementById("comuna").value;
-
-  // 2) Campos obligatorios
+  
   const faltan = [];
   if (!region)  faltan.push("Región");
   if (!comuna)  faltan.push("Comuna");
@@ -33,29 +31,25 @@ function validateActivityForm(event) {
     alert("Por favor completa: " + faltan.join(", "));
     return false;
   }
-
-  // 3) Fecha término > fecha inicio
+  
   if (new Date(termino) <= new Date(inicio)) {
     alert("La fecha de término debe ser posterior a la de inicio.");
     return false;
   }
-
-  // 4) Formato de celular (si está presente)
+  
   const telefonoRegex = /^\+569\d{8}$/;
   if (celular && !telefonoRegex.test(celular)) {
     alert("El número de celular debe tener formato +56912345678.");
     return false;
   }
-
-  // 5) Validación de email con regex
+  
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
   if (!emailRegex.test(email)) {
     alert("Correo inválido: debe tener formato usuario@dominio.com");
     document.getElementById("email").focus();
     return false;
   }
-
-  // 6) Fotos: contar TODOS los archivos subidos en inputs .foto
+  
   const fotoInputs = document.getElementsByClassName("foto");
   let totalFotos = 0;
   for (let inp of fotoInputs) {
@@ -69,13 +63,11 @@ function validateActivityForm(event) {
     alert("Por favor, sube un máximo de 5 fotos.");
     return false;
   }
-
-  // 7) Si todo OK, abrimos el modal de confirmación
+  
   document.getElementById("modal").classList.add("open");
   return true;
 }
 
-// Mantener contador para no añadir más de 5 campos
 let amountFotos = 1;
 function addAnotherPhoto() {
   if (amountFotos >= 5) {
@@ -86,8 +78,8 @@ function addAnotherPhoto() {
   const container = document.getElementById("photoInputsContainer");
   const input = document.createElement("input");
   input.type = "file";
-  input.className = "foto";       // clase para validar luego
-  input.name = "fotos[]";         // nombre en plural con []
+  input.className = "foto";       
+  input.name = "fotos[]";         
   input.accept = "image/*";
   container.appendChild(input);
 }

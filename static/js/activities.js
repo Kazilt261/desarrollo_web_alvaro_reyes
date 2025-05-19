@@ -4,22 +4,19 @@ let totalPages  = 1;
 async function loadActivities(page = 1) {
   const resp = await fetch(`/api/actividades?page=${page}`);
   const data = await resp.json();
-
-  // 1) Obtén la lista y ordénala por id descendente
+  
   const lista = data.actividades.sort((a, b) => b.id - a.id);
-
-  // 2) Actualiza paginación
+  
   currentPage  = data.page;
   totalPages   = data.total_pages;
-
-  // 3) Render y controles
+  
   renderTable(lista);
   updatePaginationControls();
 }
 
 function renderTable(lista) {
   const tbody = document.getElementById('list');
-  tbody.innerHTML = '';  // limpiamos
+  tbody.innerHTML = '';  
 
   lista.forEach(act => {
     const tr = document.createElement('tr');
@@ -48,10 +45,9 @@ function updatePaginationControls() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Carga inicial
+  
   loadActivities();
-
-  // Listeners
+  
   document.getElementById('prevBtn')
           .addEventListener('click', () => {
     if (currentPage > 1) loadActivities(currentPage - 1);

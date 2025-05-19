@@ -123,9 +123,7 @@ def detalle(act_id):
     actividad = Actividad.query.get_or_404(act_id)
 
     contactos = [
-        # Si el medio es "otra", mostramos "otra (identificador)"
         f"{c.nombre} ({c.identificador})" if c.nombre == 'otra'
-        # En caso contrario, solo el nombre del medio
         else c.nombre
         for c in actividad.contactos
     ]

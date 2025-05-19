@@ -1,45 +1,43 @@
-/* Estilos generales */
 body {
-    font-family: Arial, sans-serif; /* Asegura una fuente limpia y moderna */
-    background-color: beige; /* Fondo claro para mejor contraste */
-    color: black; /* Texto en color negro para mejor legibilidad */
+    font-family: Arial, sans-serif; 
+    background-color: beige; 
+    color: black; 
     margin: 0;
     padding: 0;
 }
 
 h2 {
-    text-align: center; /* Centra el título de la sección */
+    text-align: center;
     margin-top: 20px;
 }
 
-/* Estilos de la tabla */
 table {
-    width: 90%; /* Ancho de la tabla */
-    margin: 20px auto; /* Centra la tabla horizontalmente y añade espacio arriba y abajo */
-    border-collapse: collapse; /* Elimina los espacios entre los bordes */
+    width: 90%; 
+    margin: 20px auto; 
+    border-collapse: collapse; 
 }
 
 th, td {
-    border: 1px solid black; /* Líneas negras para cada celda y encabezado */
-    padding: 10px; /* Espaciado interno en las celdas */
-    text-align: left; /* Alinea el texto a la izquierda */
+    border: 1px solid black; 
+    padding: 10px;
+    text-align: left;
 }
 
 th {
-    background-color: rgb(190, 190, 172); /* Fondo gris claro para los encabezados */
+    background-color: rgb(190, 190, 172); 
 }
 
 img {
-    width: 100px; /* Ancho fijo para las imágenes */
-    height: 100px; /* Altura fija para las imágenes */
-    object-fit: cover; /* Asegura que las imágenes cubran completamente el área designada */
-    padding-left: 10px; /* Espaciado interno para las imágenes */
+    width: 100px; 
+    height: 100px; 
+    object-fit: cover;
+    padding-left: 10px; 
 }
 
 .grafico {
     margin: 20px;
-    max-width: 400px;  /* Cambié el tamaño máximo de los gráficos */
-    margin: 0 auto;    /* Centrado de los gráficos */
+    max-width: 400px;  
+    margin: 0 auto;   
 }
 
 a {
@@ -59,7 +57,7 @@ p{
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
+    background-color: rgba(0, 0, 0, 0.5); 
     display: none;
 }
 
@@ -67,11 +65,11 @@ p{
     margin: auto;
     height: 400px;
     width: 400px;
-    background-color: white; /* Fondo blanco para el contenido del modal */
+    background-color: white; 
 }
 
 .modal.open{
-    display: flex; /* Muestra el modal */
+    display: flex; 
 }
 
 h1{

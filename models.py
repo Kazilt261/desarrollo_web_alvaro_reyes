@@ -79,7 +79,7 @@ class Foto(db.Model):
 
 class Tema(db.Model):
     __tablename__ = 'actividad_tema'
-    __table_args__ = {'extend_existing': True}  # <— aquí
+    __table_args__ = {'extend_existing': True} 
 
     id           = db.Column(db.Integer,
                              primary_key=True,
