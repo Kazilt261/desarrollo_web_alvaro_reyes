@@ -1,126 +1,83 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Estadísticas de Actividades</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
 </head>
+
 <body>
-    <header>
-        <h1>Estadísticas de Actividades</h1>
-    </header>
+    <h1>Estadísticas</h1>
 
-    <nav>
-        <ul>
-            <li><a class="button" href="{{ url_for('index') }}">Inicio</a></li>
-        </ul>
-    </nav>
+    <div id="chart1" style="width:90%; height:400px; margin: auto;"></div>
+    <div id="chart2" style="width:90%; height:400px; margin: auto;"></div>
+    <div id="chart3" style="width:90%; height:400px; margin: auto;"></div>
 
-    <main>
-        <div class="grafico">
-            <h2>Actividades por Día</h2>
-            <canvas id="grafico-lineas"></canvas>
-        </div>
-        <div class="grafico">
-            <h2>Actividades por Tipo</h2>
-            <canvas id="grafico-torta"></canvas>
-        </div>
-        <div class="grafico">
-            <h2>Actividades por Hora del Día</h2>
-            <canvas id="grafico-barras"></canvas>
-        </div>
-        <div class="volver">
-            <a href="{{ url_for('index') }}">Volver a la Portada</a>
-        </div>
-    </main>
+    <p><a href="{{ url_for('index') }}">← Volver al inicio</a></p>
+
     <script>
-        const datosLineas = {
-            labels: ['2025-04-01', '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05', '2025-04-06'],
-            datasets: [{
-                label: 'Actividades',
-                data: [3, 5, 2, 4, 6, 3],
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 2,
-                fill: false
-            }]
-        };
-        const ctxLineas = document.getElementById('grafico-lineas').getContext('2d');
-        new Chart(ctxLineas, {
-            type: 'line',
-            data: datosLineas,
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Días'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Cantidad de Actividades'
-                        }
-                    }
-                }
-            }
-        });
-        const datosTorta = {
-            labels: ['Tecnología', 'Deporte', 'Aventura', 'Gastronomía', 'Música'],
-            datasets: [{
-                data: [5, 8, 4, 2, 6],
-                backgroundColor: ['#FF6347', '#36A2EB', '#FFCE56', '#4CAF50', '#FF5733'],
-                hoverOffset: 4
-            }]
-        };
+        document.addEventListener('DOMContentLoaded', () => {
 
-        const ctxTorta = document.getElementById('grafico-torta').getContext('2d');
-        new Chart(ctxTorta, {
-            type: 'pie',
-            data: datosTorta
-        });
+            // 1) Línea: actividades por día
+            fetch('/api/stats/actividades_por_dia')
+                .then(r => r.json())
+                .then(data => {
+                    Highcharts.chart('chart1', {
+                        chart: { type: 'line' },
+                        title: { text: 'Actividades por Día' },
+                        xAxis: { categories: data.map(d => d.fecha) },
+                        yAxis: { title: { text: 'Cantidad' } },
+                        series: [{
+                            name: 'Actividades',
+                            data: data.map(d => d.cantidad)
+                        }]
+                    });
+                });
 
-        const datosBarras = {
-            labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
-            datasets: [{
-                label: 'Mañana',
-                data: [5, 6, 4, 8, 7],
-                backgroundColor: '#FF6347'
-            }, {
-                label: 'Mediodía',
-                data: [3, 4, 6, 5, 8],
-                backgroundColor: '#36A2EB'
-            }, {
-                label: 'Tarde',
-                data: [4, 5, 7, 6, 3],
-                backgroundColor: '#FFCE56'
-            }]
-        };
-        const ctxBarras = document.getElementById('grafico-barras').getContext('2d');
-        new Chart(ctxBarras, {
-            type: 'bar',
-            data: datosBarras,
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Meses'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Cantidad de Actividades'
-                        }
-                    }
-                }
-            }
+            // 2) Torta: actividades por tema
+            fetch('/api/stats/actividades_por_tema')
+                .then(r => r.json())
+                .then(data => {
+                    Highcharts.chart('chart2', {
+                        chart: { type: 'pie' },
+                        title: { text: 'Actividades por Tema' },
+                        series: [{
+                            name: 'Total',
+                            colorByPoint: true,
+                            data: data.map(d => ({ name: d.tema, y: d.cantidad }))
+                        }]
+                    });
+                });
+
+            // 3) Barras: actividades por horario y mes
+            fetch('/api/stats/actividades_por_horario')
+                .then(r => r.json())
+                .then(data => {
+                    // extraemos meses únicos y ordenados
+                    const meses = [...new Set(data.map(d => d.mes))].sort((a, b) => a - b);
+                    const turnos = ['mañana', 'mediodía', 'tarde'];
+                    const series = turnos.map(turno => ({
+                        name: turno,
+                        data: meses.map(m => {
+                            const rec = data.find(d => d.mes === m && d.turno === turno);
+                            return rec ? rec.cantidad : 0;
+                        })
+                    }));
+
+                    Highcharts.chart('chart3', {
+                        chart: { type: 'column' },
+                        title: { text: 'Actividades por Turno y Mes' },
+                        xAxis: { categories: meses.map(m => 'Mes ' + m) },
+                        yAxis: { title: { text: 'Cantidad' } },
+                        series: series
+                    });
+                });
+
         });
     </script>
 </body>
+
 </html>

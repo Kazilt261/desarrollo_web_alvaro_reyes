@@ -2,7 +2,8 @@ import re
 import os
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from models import db, Actividad, Foto, Region, Comuna, Tema, ContactarPor
+from sqlalchemy import func, extract, case
+from models import db, Actividad, Foto, Region, Comuna, Tema, ContactarPor, Comentario
 from werkzeug.utils import secure_filename
 from math import ceil
 import config
@@ -139,6 +140,102 @@ def detalle(act_id):
 @app.route('/estadisticas')
 def estadisticas():
     return render_template('estadisticas.html')
+
+@app.route('/api/stats/actividades_por_dia')
+def stats_por_dia():
+    rows = (
+        db.session.query(
+            func.date(Actividad.dia_hora_inicio).label('fecha'),
+            func.count().label('cantidad')
+        )
+        .group_by('fecha')
+        .order_by('fecha')
+        .all()
+    )
+    return jsonify([
+        { 'fecha': r.fecha.isoformat(), 'cantidad': r.cantidad }
+        for r in rows
+    ])
+
+@app.route('/api/stats/actividades_por_tema')
+def stats_por_tema():
+    rows = (
+        db.session.query(
+            Tema.tema,
+            func.count().label('cantidad')
+        )
+        .group_by(Tema.tema)
+        .all()
+    )
+    return jsonify([
+        { 'tema': r.tema, 'cantidad': r.cantidad }
+        for r in rows
+    ])
+
+@app.route('/api/stats/actividades_por_horario')
+def api_stats_por_horario():
+    rows = (
+        db.session.query(
+            extract('month', Actividad.dia_hora_inicio).label('mes'),
+            case(
+                (extract('hour', Actividad.dia_hora_inicio) < 12, 'mañana'),
+                (extract('hour', Actividad.dia_hora_inicio) < 18, 'mediodía'),
+                else_='tarde'
+            ).label('turno'),
+            func.count().label('cantidad')
+        )
+        .group_by('mes', 'turno')
+        .order_by('mes')
+        .all()
+    )
+    return jsonify([
+        {'mes': int(r.mes), 'turno': r.turno, 'cantidad': r.cantidad}
+        for r in rows
+    ])
+
+
+@app.route('/api/comentarios/<int:act_id>')              # por defecto methods=['GET']
+def api_get_comentarios(act_id):
+    comentarios = (Comentario.query
+                   .filter_by(actividad_id=act_id)
+                   .order_by(Comentario.fecha.asc())
+                   .all())
+    return jsonify([
+        {
+          'id':    c.id,
+          'nombre': c.nombre,
+          'texto':  c.texto,
+          'fecha':  c.fecha.isoformat()
+        }
+        for c in comentarios
+    ])
+
+
+
+@app.route('/api/comentarios/<int:act_id>', methods=['POST'])
+def api_add_comentario(act_id):
+    data   = request.get_json(silent=True) or request.form
+    nombre = (data.get('nombre') or '').strip()
+    texto  = (data.get('texto')  or '').strip()
+    errors = []
+    if not (3 <= len(nombre) <= 80):
+        errors.append('Nombre debe tener entre 3 y 80 caracteres.')
+    if len(texto) < 5:
+        errors.append('Comentario debe tener al menos 5 caracteres.')
+    if not Actividad.query.get(act_id):
+        errors.append('Actividad no válida.')
+    if errors:
+        return jsonify({'errors': errors}), 400
+
+    c = Comentario(nombre=nombre, texto=texto, actividad_id=act_id)
+    db.session.add(c)
+    db.session.commit()
+    return jsonify({
+        'id':     c.id,
+        'nombre': c.nombre,
+        'texto':  c.texto,
+        'fecha':  c.fecha.isoformat()
+    }), 201
 
 @app.route('/informar', methods=['GET', 'POST'])
 def informar():

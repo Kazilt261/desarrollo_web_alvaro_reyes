@@ -1,5 +1,6 @@
 # models.py
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -34,25 +35,9 @@ class Actividad(db.Model):
     descripcion      = db.Column(db.String(500))
 
     comuna     = db.relationship('Comuna', back_populates='actividades')
-    temas      = db.relationship('ActividadTema', back_populates='actividad',  cascade='all, delete-orphan')
+    temas      = db.relationship('Tema', back_populates='actividad',  cascade='all, delete-orphan')
     contactos  = db.relationship('ContactarPor',   back_populates='actividad',  cascade='all, delete-orphan')
     fotos      = db.relationship('Foto',            back_populates='actividad',  cascade='all, delete-orphan')
-
-
-class ActividadTema(db.Model):
-    __tablename__ = 'actividad_tema'
-    id           = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    tema         = db.Column(
-        db.Enum(
-            'música','deporte','ciencias','religión','política',
-            'tecnología','juegos','baile','comida','otro'
-        ),
-        nullable=False
-    )
-    glosa_otro   = db.Column(db.String(15))
-    actividad_id = db.Column(db.Integer, db.ForeignKey('actividad.id'), nullable=False)
-
-    actividad = db.relationship('Actividad', back_populates='temas')
 
 
 class ContactarPor(db.Model):
@@ -79,13 +64,30 @@ class Foto(db.Model):
 
 class Tema(db.Model):
     __tablename__ = 'actividad_tema'
-    __table_args__ = {'extend_existing': True} 
 
-    id           = db.Column(db.Integer,
-                             primary_key=True,
-                             autoincrement=True)
+    id           = db.Column(db.Integer, primary_key=True, autoincrement=True)
     actividad_id = db.Column(db.Integer,
                              db.ForeignKey('actividad.id'),
                              nullable=False)
-    tema         = db.Column(db.String(50),
-                             nullable=False)
+    tema         = db.Column(db.String(50), nullable=False)
+    glosa_otro   = db.Column(db.String(15), nullable=True)
+
+    # ← aquí falta:
+    actividad   = db.relationship(
+        'Actividad',
+        back_populates='temas'
+    )
+
+
+class Comentario(db.Model):
+    __tablename__ = 'comentario'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(80), nullable=False)
+    texto = db.Column(db.String(300), nullable=False)
+    fecha = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    actividad_id = db.Column(db.Integer, db.ForeignKey('actividad.id'), nullable=False)
+
+# En tu modelo Actividad:
+Actividad.comentarios = db.relationship(
+    'Comentario', backref='actividad', lazy=True, cascade='all, delete-orphan'
+)
