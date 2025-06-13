@@ -45,3 +45,39 @@
   width: 30vw;
   height: auto;
 }
+
+/* Comentarios */
+.comments-list {
+  list-style: none;
+  padding: 20px;
+  margin-top: 1em;
+}
+
+.comment-item {
+  background-color: #f9f9f9;
+  border-left: 4px solid #0077cc;
+  padding: 0.8em 1em;
+  margin-bottom: 1em;
+  border-radius: 6px;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 0.4em;
+}
+
+.comment-name {
+  color: #333;
+}
+
+.comment-date {
+  color: #888;
+  font-size: 0.9em;
+}
+
+.comment-text {
+  color: #444;
+  white-space: pre-wrap;
+}

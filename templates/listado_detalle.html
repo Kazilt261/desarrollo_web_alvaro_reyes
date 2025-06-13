@@ -48,7 +48,14 @@
         {% else %}—{% endif %}
       </p>
       <p><strong>Tema(s):</strong>
-        {{ actividad.temas|map(attribute='tema')|join(', ') }}
+        {% for tema in actividad.temas %}
+          {% if tema.tema == 'otro' and tema.glosa_otro %}
+            {{ tema.glosa_otro }}
+          {% else %}
+            {{ tema.tema }}
+          {% endif %}
+          {% if not loop.last %}, {% endif %}
+        {% endfor %}
       </p>
       <p><strong>Descripción:</strong></p>
       <p>{{ actividad.descripcion or '—' }}</p>
@@ -70,8 +77,6 @@
     <!-- sección comentarios -->
     <section id="comentarios-actividad">
       <h2>Comentarios</h2>
-      <ul id="commentsList"></ul>
-
       <form id="commentForm">
         <label>
           Nombre:
@@ -84,6 +89,7 @@
         <button type="submit">Agregar comentario</button>
         <div id="commentErrors" class="error"></div>
       </form>
+      <ul id="commentsList" class="comments-list"></ul>
     </section>
   </main>
 
@@ -116,8 +122,16 @@
           }
           data.forEach(c => {
             const li = document.createElement('li');
+            li.classList.add('comment-item');
+
             const fecha = new Date(c.fecha).toLocaleString('es-CL');
-            li.textContent = `${fecha} — ${c.nombre}: ${c.texto}`;
+            li.innerHTML = `
+              <div class="comment-header">
+                <span class="comment-name">${c.nombre}</span>
+                <span class="comment-date">${fecha}</span>
+              </div>
+              <div class="comment-text">${c.texto}</div>
+            `;
             ul.appendChild(li);
           });
         })

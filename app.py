@@ -69,7 +69,11 @@ def api_actividades():
 
     result = []
     for a in actividades:
-        tema_str = ', '.join([t.tema for t in a.temas]) if a.temas else ''
+        tema_str = ', '.join([
+            t.glosa_otro if t.tema == 'otro' and t.glosa_otro else t.tema
+            for t in a.temas
+        ]) if a.temas else ''
+
         result.append({
             'id': a.id,
             'inicio': a.dia_hora_inicio.isoformat(),
