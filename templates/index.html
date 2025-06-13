@@ -44,7 +44,12 @@
           <td>{{ act.sector or '—' }}</td>
           <td>
             {% for tema in act.temas %}
-              {{ tema.tema }}{% if not loop.last %}, {% endif %}
+              {% if tema.tema == 'otro' and tema.glosa_otro %}
+                {{ tema.glosa_otro }}
+              {% else %}
+                {{ tema.tema }}
+              {% endif %}
+              {% if not loop.last %}, {% endif %}
             {% endfor %}
           </td>
           <td>

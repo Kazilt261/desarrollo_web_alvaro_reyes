@@ -49,12 +49,25 @@ pip install -r requirements.txt
 
 ## 5. Configurar base de datos
 
-# Crear tablas y constraints
-type .\tarea2.sql | mysql -u cc5002 -p tarea2
+Primero, cambia la consola de Windows a codificación UTF-8 para evitar problemas con caracteres especiales:
 
-# Poblar regiones y comunas
-type .\region-comuna.sql | mysql -u cc5002 -p tarea2
-
+```bash
+chcp 65001
+```
+Luego, asegúrate de que la base de datos tarea2 exista. Puedes crearla así:
+```bash
+mysql -u cc5002 -p
+"Password"
+CREATE DATABASE tarea2 CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+EXIT;
+```
+# Cargar estructura de tablas y datos
+Usa los siguientes comandos para poblar la base de datos con las tablas y datos necesarios:
+```bash
+mysql -u cc5002 -p --default-character-set=utf8mb4 tarea2 < tarea2.sql
+mysql -u cc5002 -p --default-character-set=utf8mb4 tarea2 < region-comuna.sql
+mysql -u cc5002 -p --default-character-set=utf8mb4 tarea2 < tabla-comentario.sql
+```
 ## 6. Ejecutar la aplicación
 
 # Definir variable de entorno

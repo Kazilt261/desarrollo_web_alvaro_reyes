@@ -237,6 +237,11 @@ def api_add_comentario(act_id):
         'fecha':  c.fecha.isoformat()
     }), 201
 
+temas_validos = [
+    'música', 'deporte', 'ciencias', 'religión', 'política',
+    'tecnología', 'juegos', 'baile', 'comida', 'otro'
+]
+
 @app.route('/informar', methods=['GET', 'POST'])
 def informar():
 
@@ -319,9 +324,15 @@ def informar():
         db.session.add(act)
         db.session.flush()
         
-        valor_tema = datos.get('otro_tema') if tema_sel == 'otro' else tema_sel
-        if valor_tema:
-            db.session.add(Tema(tema=valor_tema, actividad_id=act.id))
+        glosa_otro = datos.get('otro_tema', '').strip() if tema_sel == 'otro' else None
+        tema_valido = tema_sel if tema_sel in temas_validos else 'otro'
+
+        db.session.add(Tema(
+            tema=tema_valido,
+            glosa_otro=glosa_otro if tema_valido == 'otro' else None,
+            actividad_id=act.id
+        ))
+
             
         identificador = datos.get('id_contacto','').strip()
         for m in medios:
