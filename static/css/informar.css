@@ -1,8 +1,8 @@
-main{
+main {
     display: flex;
 }
 
-form{
+form {
     display: flex;
     flex-direction: column;
     padding: 10px;
@@ -12,7 +12,17 @@ form{
     gap: 6px;
 }
 
-flex-row{
+flex-row {
     display: flex;
     flex-direction: row;
+}
+
+#contacto_input {
+    display: none;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1em;
 }

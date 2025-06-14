@@ -226,7 +226,7 @@ def api_add_comentario(act_id):
         errors.append('Nombre debe tener entre 3 y 80 caracteres.')
     if len(texto) < 5:
         errors.append('Comentario debe tener al menos 5 caracteres.')
-    if not Actividad.query.get(act_id):
+    if not Actividad.query.get_or_404(act_id):
         errors.append('Actividad no válida.')
     if errors:
         return jsonify({'errors': errors}), 400
@@ -371,6 +371,9 @@ def informar():
         tema_sel=''
     )
 
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html'), 404
 
 
 if __name__ == '__main__':

@@ -7,12 +7,6 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
-SET NAMES utf8mb4;
-SET CHARACTER SET utf8mb4;
-SET character_set_client = utf8mb4;
-SET character_set_connection = utf8mb4;
-SET character_set_results = utf8mb4;
-
 -- -----------------------------------------------------
 -- Schema tarea2
 -- -----------------------------------------------------
@@ -21,19 +15,17 @@ DROP SCHEMA IF EXISTS `tarea2` ;
 -- -----------------------------------------------------
 -- Schema tarea2
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `tarea2` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
+CREATE SCHEMA IF NOT EXISTS `tarea2` DEFAULT CHARACTER SET utf8 ;
 USE `tarea2` ;
 
 -- -----------------------------------------------------
--- Table `tarea2`.`region` 
+-- Table `tarea2`.`region`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `tarea2`.`region` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(200) NOT NULL,
   PRIMARY KEY (`id`))
-ENGINE = InnoDB
-DEFAULT CHARSET = utf8mb4
-COLLATE = utf8mb4_unicode_ci;
+ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
@@ -50,9 +42,7 @@ CREATE TABLE IF NOT EXISTS `tarea2`.`comuna` (
     REFERENCES `tarea2`.`region` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARSET = utf8mb4
-COLLATE = utf8mb4_unicode_ci;
+ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
@@ -75,9 +65,7 @@ CREATE TABLE IF NOT EXISTS `tarea2`.`actividad` (
     REFERENCES `tarea2`.`comuna` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARSET = utf8mb4
-COLLATE = utf8mb4_unicode_ci;
+ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
@@ -95,9 +83,7 @@ CREATE TABLE IF NOT EXISTS `tarea2`.`foto` (
     REFERENCES `tarea2`.`actividad` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARSET = utf8mb4
-COLLATE = utf8mb4_unicode_ci;
+ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
@@ -115,9 +101,7 @@ CREATE TABLE IF NOT EXISTS `tarea2`.`contactar_por` (
     REFERENCES `tarea2`.`actividad` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARSET = utf8mb4
-COLLATE = utf8mb4_unicode_ci;
+ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
@@ -135,9 +119,7 @@ CREATE TABLE IF NOT EXISTS `tarea2`.`actividad_tema` (
     REFERENCES `tarea2`.`actividad` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARSET = utf8mb4
-COLLATE = utf8mb4_unicode_ci;
+ENGINE = InnoDB;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

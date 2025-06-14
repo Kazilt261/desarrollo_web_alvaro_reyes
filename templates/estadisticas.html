@@ -11,73 +11,13 @@
 
 <body>
     <h1>Estadísticas</h1>
-
+    <li><a class="button" href="{{ url_for('index') }}">Inicio</a></li>
     <div id="chart1" style="width:90%; height:400px; margin: auto;"></div>
     <div id="chart2" style="width:90%; height:400px; margin: auto;"></div>
     <div id="chart3" style="width:90%; height:400px; margin: auto;"></div>
 
-    <p><a href="{{ url_for('index') }}">← Volver al inicio</a></p>
+    
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-
-            // 1) Línea: actividades por día
-            fetch('/api/stats/actividades_por_dia')
-                .then(r => r.json())
-                .then(data => {
-                    Highcharts.chart('chart1', {
-                        chart: { type: 'line' },
-                        title: { text: 'Actividades por Día' },
-                        xAxis: { categories: data.map(d => d.fecha) },
-                        yAxis: { title: { text: 'Cantidad' } },
-                        series: [{
-                            name: 'Actividades',
-                            data: data.map(d => d.cantidad)
-                        }]
-                    });
-                });
-
-            // 2) Torta: actividades por tema
-            fetch('/api/stats/actividades_por_tema')
-                .then(r => r.json())
-                .then(data => {
-                    Highcharts.chart('chart2', {
-                        chart: { type: 'pie' },
-                        title: { text: 'Actividades por Tema' },
-                        series: [{
-                            name: 'Total',
-                            colorByPoint: true,
-                            data: data.map(d => ({ name: d.tema, y: d.cantidad }))
-                        }]
-                    });
-                });
-
-            // 3) Barras: actividades por horario y mes
-            fetch('/api/stats/actividades_por_horario')
-                .then(r => r.json())
-                .then(data => {
-                    // extraemos meses únicos y ordenados
-                    const meses = [...new Set(data.map(d => d.mes))].sort((a, b) => a - b);
-                    const turnos = ['mañana', 'mediodía', 'tarde'];
-                    const series = turnos.map(turno => ({
-                        name: turno,
-                        data: meses.map(m => {
-                            const rec = data.find(d => d.mes === m && d.turno === turno);
-                            return rec ? rec.cantidad : 0;
-                        })
-                    }));
-
-                    Highcharts.chart('chart3', {
-                        chart: { type: 'column' },
-                        title: { text: 'Actividades por Turno y Mes' },
-                        xAxis: { categories: meses.map(m => 'Mes ' + m) },
-                        yAxis: { title: { text: 'Cantidad' } },
-                        series: series
-                    });
-                });
-
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/stats.js') }}"></script>
 </body>
-
 </html>

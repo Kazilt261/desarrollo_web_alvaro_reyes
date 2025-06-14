@@ -1,32 +1,44 @@
-# Tarea 2 – Gestión de Actividades Recreativas
+# Tarea 3 – Gestión de Actividades Recreativas
 
 ## 1. Descripción  
 Aplicación web en Flask para la gestión de actividades recreativas.  
 - **Rutas principales**:  
   - `/` → Portada  
   - `/informar` → Formulario de nueva actividad  
-  - `/listado` → Listado paginado de actividades (5 por página)  
+  - `/actividades` → Listado paginado de actividades (5 por página)  
   - `/actividades/<id>` → Detalle de una actividad
+  - `/estadisticas` → Estadisticas
 
 ## 2. Estructura del repositorio  
-Tarea2/
+DESARROLLO_WEB_ALVARO_REYES/
 ├── app.py
-├── config.py # Configuración de conexión (cc5002/programacionweb)
-├── models.py # Modelos SQLAlchemy
+├── config.py # Configuración de conexión a BD
+├── models.py # Modelos
 ├── requirements.txt
-├── tarea2.sql # DDL: CREATE TABLE, CONSTRAINTS
-├── region-comuna.sql # INSERTs de regiones y comunas
-├── tarea2.png # Diagrama ER en PNG
+├── tarea2.sql # DDL de tabla actividad
+├── region-comuna.sql # Datos de regiones y comunas
+├── tabla-comentario.sql # DDL de tabla comentario
+├── tarea2.png # Diagrama ER
 ├── README.md # Este archivo
 ├── static/
-│ ├── css/
-│ └── js/
+│   ├── css/
+│   │   ├── style.css
+│   │   ├── informar.css
+│   │   └── listado_detalle.css
+│   ├── img/ # Imágenes estáticas
+│   ├── js/
+│   │   ├── validation.js
+│   │   ├── detalle_actividad.js
+│   │   └── stats.js
+│   └── uploads/ # Archivos subidos por el usuario
 └── templates/
-    ├──── portada.html
-    ├──── informar.html
-    ├──── listado.html
-    ├──── listado_detalle.html
-    └──── estadisticas.html
+    ├── 404.html
+    ├── estadisticas.html
+    ├── index.html
+    ├── informar.html
+    ├── listado.html
+    ├── listado_detalle.html
+    └── detalle_actividad.html
 
 
 ## 3. Requisitos  

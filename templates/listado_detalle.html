@@ -9,8 +9,6 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/listado_detalle.css') }}">
 </head>
 
-<!-- Inyectamos el ID como atributo data-act-id -->
-
 <body data-act-id="{{ actividad.id }}">
   <header>
     <h1>Detalle de la Actividad</h1>
@@ -24,7 +22,6 @@
   </nav>
 
   <main>
-    <!-- sección info-actividad -->
     <section id="info-actividad">
       <p><strong>Región / Comuna:</strong>
         {{ actividad.comuna.region.nombre }} / {{ actividad.comuna.nombre }}
@@ -48,7 +45,7 @@
         {{ actividad.dia_hora_termino.strftime("%d/%m/%Y %H:%M") }}
         {% else %}—{% endif %}
       </p>
-      <p><strong>Tema(s):</strong>
+      <p><strong>Tema:</strong>
         {% for tema in actividad.temas %}
         {% if tema.tema == 'otro' and tema.glosa_otro %}
         {{ tema.glosa_otro }}
@@ -62,7 +59,6 @@
       <p>{{ actividad.descripcion or '—' }}</p>
     </section>
 
-    <!-- sección fotos -->
     <section id="fotos-actividad">
       <h2>Fotos</h2>
       <div>
@@ -72,8 +68,7 @@
         {% endfor %}
       </div>
     </section>
-
-    <!-- sección comentarios -->
+    
     <section id="comentarios-actividad">
       <h2>Comentarios</h2>
       <form id="commentForm">
@@ -95,90 +90,7 @@
   <div id="lightbox" class="lightbox" onclick="this.classList.remove('open')">
     <img id="lb-img" alt="Ampliación de foto">
   </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Lightbox
-      window.openLightbox = src => {
-        const lb = document.getElementById('lightbox');
-        document.getElementById('lb-img').src = src;
-        lb.classList.add('open');
-      };
-
-      // Leemos el ID desde el atributo data-act-id
-      const actId = Number(document.body.dataset.actId);
-
-      // Carga y renderizado de comentarios
-      function loadComments() {
-        fetch(`/api/comentarios/${actId}`)
-          .then(r => r.json())
-          .then(data => {
-            const ul = document.getElementById('commentsList');
-            ul.innerHTML = '';
-
-            if (!data.length) {
-              ul.innerHTML = '<li>No hay comentarios aún.</li>';
-              return;
-            }
-
-            // 1) Ordena de más nuevo a más antiguo
-            data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-
-            // 2) Renderiza en ese orden
-            data.forEach(c => {
-              const li = document.createElement('li');
-              li.classList.add('comment-item');
-
-              const fecha = new Date(c.fecha).toLocaleString('es-CL');
-              li.innerHTML = `
-          <div class="comment-header">
-            <span class="comment-name">${c.nombre}</span>
-            <span class="comment-date">${fecha}</span>
-          </div>
-          <div class="comment-text">${c.texto}</div>
-        `;
-              ul.appendChild(li);
-            });
-          })
-          .catch(err => console.error('Error cargando comentarios:', err));
-      }
-
-      // Envío de nuevo comentario
-      const form = document.getElementById('commentForm');
-      form.addEventListener('submit', e => {
-        e.preventDefault();
-        const errorsDiv = document.getElementById('commentErrors');
-        errorsDiv.innerHTML = '';
-
-        const nombre = document.getElementById('commentName').value.trim();
-        const texto = document.getElementById('commentText').value.trim();
-
-        fetch(`/api/comentarios/${actId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nombre, texto })
-        })
-          .then(resp => resp.ok
-            ? resp.json()
-            : resp.json().then(j => Promise.reject(j.errors))
-          )
-          .then(() => {
-            form.reset();
-            loadComments();
-          })
-          .catch(errs => {
-            errs.forEach(msg => {
-              const div = document.createElement('div');
-              div.textContent = msg;
-              errorsDiv.appendChild(div);
-            });
-          });
-      });
-
-      // Carga inicial de comentarios
-      loadComments();
-    });
-  </script>
+  <script src="{{ url_for('static', filename='js/detalle_actividad.js') }}"></script>
 </body>
 
 </html>
